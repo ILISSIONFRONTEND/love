@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Для Маши ❤️</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:linear-gradient(180deg,#ffb6d9,#ffe6f3);
+height:100vh;
+overflow:hidden;
+color:white;
+}
+
+.screen{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:20px;
+transition:.6s;
+}
+
+.hidden{
+opacity:0;
+pointer-events:none;
+}
+
+button{
+padding:14px 24px;
+border:none;
+border-radius:30px;
+background:#ff4f9a;
+color:white;
+font-size:18px;
+margin:10px;
+}
+
+.heart{
+position:absolute;
+font-size:30px;
+animation:float 3s linear forwards;
+}
+
+@keyframes float{
+from{transform:translateY(0)}
+to{transform:translateY(-150px);opacity:0}
+}
+
+.photo-frame{
+width:90vw;
+height:80vh;
+max-width:420px;
+
+border-radius:20px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,.25);
+margin:15px auto;
+}
+
+.photo-frame img{
+width:100%;
+height:100%;
+object-fit:cover;
+display:block;
+}
+
+@keyframes fade{
+from{opacity:0;transform:scale(.8)}
+to{opacity:1}
+}
+
+.card{
+width:90px;
+height:90px;
+background:#ff7fb3;
+margin:5px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:30px;
+border-radius:15px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+}
+
+</style>
+</head>
+<div id="voiceScreen" class="screen hidden">
+<h1 id="voiceText">...</h1>
+</div>
+
+<body>
+
+<audio id="music" src="music.mp3" loop></audio>
+<audio id="voice" src="voice.m4a"></audio>
+
+<!-- START -->
+<div id="s1" class="screen">
+<h1>Пливет, Маcа 💗</h1>
+<p>Я сделал для тебя маленькую плиятностье</p>
+<button onclick="start()">Начать</button>
+</div>
+
+<!-- HEART GAME -->
+<div id="s2" class="screen hidden">
+<h1>Поймай 5 селдечек ❤️</h1>
+</div>
+
+<!-- PHOTOS -->
+<div id="s3" class="screen hidden">
+<h1>Наши фотокарточки</h1>
+
+<div class="photo-frame">
+  <img src="photo1.jpg">
+</div>
+
+<div class="photo-frame">
+  <img src="photo2.jpg">
+</div>
+
+<div class="photo-frame">
+  <img src="photo3.jpg">
+</div>
+
+<button onclick="show(4)">Дальше</button>
+</div>
+
+<!-- CHOICE GAME -->
+<div id="s4" class="screen hidden">
+<h1>Кто делает меня щистливым?</h1>
+
+<button onclick="wrong()">Сон</button>
+<button onclick="wrong()">Игры</button>
+<button onclick="show(5)">Ты ❤️</button>
+</div>
+
+<!-- MEMORY GAME -->
+<div id="s5" class="screen hidden">
+<h1>Найди пары ❤️</h1>
+<div class="grid" id="memory"></div>
+</div>
+
+<!-- SECRET -->
+<div id="s6" class="screen hidden">
+<h1>Где признание? 💌</h1>
+
+<button onclick="shake(this)">Не тут</button>
+<button onclick="shake(this)">Мимо</button>
+<button onclick="secret()">Нажми</button>
+</div>
+
+<!-- FINAL -->
+<div id="s7" class="screen hidden">
+<h1>Маcа ❤️</h1>
+<p>Ты стала частью моей жизни…</p>
+<p>Можно я буду любить тебя дальше?</p>
+
+<button onclick="finish()">Да 💗</button>
+</div>
+
+<script>
+
+function show(n){
+document.querySelectorAll('.screen')
+.forEach(s=>s.classList.add('hidden'));
+
+document.getElementById('s'+n)
+.classList.remove('hidden');
+
+if(n===2) hearts();
+if(n===5) memoryGame();
+}
+
+function start(){
+document.getElementById("music").play();
+show(2);
+}
+
+/* HEART GAME */
+
+let caught=0;
+
+function hearts(){
+
+caught=0;
+
+let interval=setInterval(()=>{
+
+let h=document.createElement("div");
+h.className="heart";
+h.innerHTML="❤️";
+
+h.style.left=Math.random()*90+"vw";
+h.style.top=Math.random()*80+"vh";
+
+h.onclick=()=>{
+h.remove();
+caught++;
+
+navigator.vibrate?.(50);
+
+if(caught>=5){
+clearInterval(interval);
+setTimeout(()=>show(3),600);
+}
+};
+
+document.body.appendChild(h);
+
+setTimeout(()=>h.remove(),3000);
+
+},700);
+}
+
+/* CHOICE */
+
+function wrong(){
+navigator.vibrate?.(100);
+}
+
+/* MEMORY GAME */
+
+function memoryGame(){
+
+const emojis=["❤️","💗","❤️","💗","💕","💕","💖","💖"];
+
+let shuffled=emojis.sort(()=>0.5-Math.random());
+
+let grid=document.getElementById("memory");
+grid.innerHTML="";
+
+let opened=[];
+
+shuffled.forEach(e=>{
+
+let card=document.createElement("div");
+card.className="card";
+card.innerHTML="?";
+
+card.onclick=()=>{
+
+if(card.innerHTML!="?") return;
+
+card.innerHTML=e;
+opened.push(card);
+
+if(opened.length==2){
+
+if(opened[0].innerHTML===opened[1].innerHTML){
+
+opened=[];
+
+if([...grid.children]
+.every(c=>c.innerHTML!="?")){
+setTimeout(()=>show(6),500);
+}
+
+}else{
+
+setTimeout(()=>{
+opened.forEach(c=>c.innerHTML="?");
+opened=[];
+},700);
+
+}
+}
+
+};
+
+grid.appendChild(card);
+
+});
+
+}
+
+/* SECRET */
+
+function shake(btn){
+btn.style.transform="translateX(10px)";
+setTimeout(()=>btn.style.transform="",200);
+}
+
+function secret(){
+alert("Я люблю тебя ❤️");
+show(7);
+}
+
+/* FINAL */
+
+
+
+function showScreen(id){
+document.querySelectorAll(".screen")
+.forEach(s=>s.classList.add("hidden"));
+
+document.getElementById(id)
+.classList.remove("hidden");
+}function finish(){
+
+showVoiceScene();
+
+}
+
+function showVoiceScene(){
+
+const music = document.getElementById("music");
+const voice = document.getElementById("voice");
+
+showScreen("voiceScreen");
+
+let volume = music.volume;
+
+/* плавно уменьшаем музыку */
+let fade = setInterval(()=>{
+
+volume -= 0.05;
+music.volume = volume;
+
+if(volume <= 0.1){
+clearInterval(fade);
+voice.play();
+typeText();
+}
+
+},200);
+
+}
+
+/* печатающийся текст */
+function typeText(){
+
+const text =
+"Маша... я хотел сказать это лично.";
+
+let i = 0;
+const el = document.getElementById("voiceText");
+
+let typing = setInterval(()=>{
+
+el.innerHTML += text[i];
+i++;
+
+if(i >= text.length){
+clearInterval(typing);
+}
+
+},60);
+
+}
+
+/* переход после голосовой */
+document.getElementById("voice").onended = () => {
+
+document.getElementById("voiceText").innerHTML =
+"Я люблю тебя ❤️";
+
+}
+
+function showScreen(id){
+document.querySelectorAll(".screen")
+.forEach(s=>s.classList.add("hidden"));
+
+document.getElementById(id)
+.classList.remove("hidden");
+}
+
+</script>
+
+</body>
+</html>
